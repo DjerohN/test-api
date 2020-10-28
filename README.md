@@ -1,2 +1,2 @@
 # test-api
-Trying technologies in testing
+RestAssured for API testing

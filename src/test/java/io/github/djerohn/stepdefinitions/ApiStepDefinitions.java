@@ -63,11 +63,13 @@ public class ApiStepDefinitions {
 	}
 
 	@And("^(?:.*) authorized with token \"(.*)\"$")
-	public void auth(String tokenPath) {
+	public void tokenAuth(String tokenPath) {
+		String token = DataManager.getTestFileData(tokenPath);
+		Allure.attachment("Token", token);
 		if (requestData.getHeaderMap() != null) {
-			requestData.getHeaderMap().putAll(Authorization.setAuthHeaderWithToken(tokenPath));
+			requestData.getHeaderMap().putAll(Authorization.setAuthHeaderWithToken(token));
 		} else {
-			requestData.setHeaderMap(Authorization.setAuthHeaderWithToken(tokenPath));
+			requestData.setHeaderMap(Authorization.setAuthHeaderWithToken(token));
 		}
 	}
 
@@ -158,9 +160,7 @@ public class ApiStepDefinitions {
 						.getString(jsonPath))
 				.orElseThrow(() -> new ApiTestException("Nothing found at the specified JSON path: " + jsonPath + ". Set correct JSON path"));
 
-		varValue = varValue.replaceAll("(\\r|\\n|\\r\\n)+", "\\\\\\\\n").replace("\"", "\\\\\\\"");
-
-		Allure.attachment("Session variable", varName + " = " + varValue);
+		Allure.attachment(varName, varValue);
 		session.getSessionMap().put(varName, varValue);
 	}
 }

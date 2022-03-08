@@ -6,7 +6,7 @@
 
 	<groupId>io.github.djerohn</groupId>
 	<artifactId>test-api</artifactId>
-	<version>1.0-SNAPSHOT</version>
+	<version>1.0.0</version>
 	<packaging>jar</packaging>
 
 	<properties>
@@ -247,7 +247,7 @@
 						<artifactId>allure-maven</artifactId>
 						<version>${allure-maven-plugin.version}</version>
 						<configuration>
-							<reportVersion>2.14.0</reportVersion>
+							<reportVersion>2.17.3</reportVersion>
 						</configuration>
 						<executions>
 							<execution>

@@ -7,6 +7,7 @@ Used:
 * JUnit 4
 * Cucumber 7
 * RestAssured
+* JsonUnit
 * Allure Report
 
 Tests written for https://gorest.co.in/ public API

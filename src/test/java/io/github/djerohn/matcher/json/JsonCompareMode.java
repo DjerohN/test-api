@@ -2,30 +2,28 @@ package io.github.djerohn.matcher.json;
 
 public enum JsonCompareMode {
 	/**
-	 * Количество полей в объектах должно совпадать, порядок следования объектов в массиве должен быть строгим
+	 * Number of fields must be equal, fields must be in specific order
 	 */
 	STRICT(false, true, false),
 
 	/**
-	 * Количество полей в объектах может не совпадать, порядок следования объектов
-	 * в массиве может быть не строгим
+	 * Number of fields may not be equal, fields may be unordered
 	 */
 	LENIENT(true, false, false),
 
 	/**
-	 * Количество полей в объектах должно совпадать, порядок следования объектов в массиве может быть не строгим
+	 * Number of fields must be equal, fields may be unordered
 	 */
 	NON_EXTENSIBLE(false, false, false),
 
 	/**
-	 * Количество полей в объектах может не совпадать, порядок следования объектов
-	 * в массиве должен быть строгим
+	 * Number of fields may not be equal, fields must be in specific order
 	 */
 	STRICT_ORDER(true, true, false),
 
 	/**
-	 * Количество полей в объектах должно совпадать, порядок следования объектов в массиве может быть не строгим
-	 * числа сравниваются математически, а не по типу
+	 * Number of fields must be equal, fields may be unordered
+	 * Numbers are compared mathematically, not by type
 	 */
 	WITH_TOLERANCE(false, false, true);
 

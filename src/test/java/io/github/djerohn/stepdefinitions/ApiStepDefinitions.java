@@ -5,16 +5,20 @@ import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import io.github.djerohn.auth.Authorization;
+import io.github.djerohn.exception.ApiTestException;
 import io.github.djerohn.manager.DataManager;
 import io.github.djerohn.manager.RequestManager;
+import io.github.djerohn.manager.SessionManager;
 import io.github.djerohn.matcher.json.JsonCompareMode;
 import io.github.djerohn.matcher.json.JsonMatcherHelper;
 import io.github.djerohn.request.RequestData;
 import io.github.djerohn.request.RequestMethod;
+import io.github.djerohn.session.Session;
 import io.github.djerohn.util.ApiTestUtil;
 import io.qameta.allure.Allure;
 import io.restassured.http.Header;
 import io.restassured.module.jsv.JsonSchemaValidator;
+import io.restassured.path.json.config.JsonPathConfig;
 import io.restassured.response.Response;
 import org.assertj.core.api.Assertions;
 import org.hamcrest.MatcherAssert;
@@ -23,15 +27,21 @@ import org.hamcrest.Matchers;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class ApiStepDefinitions {
+	private Session session;
 	private RequestData requestData = new RequestData();
 	private Response response;
 
-	@Given("^(?:.*) endpoint will be \"(.*)\"$")
+	public ApiStepDefinitions(Session session) {
+		this.session = session;
+	}
+
+	@Given("endpoint will be \"{}\"")
 	public void userPlansCallMethod(String endpoint) {
-		requestData.setUlrPath(endpoint);
+		requestData.setUlrPath(SessionManager.setSessionVariables(session, endpoint));
 	}
 
 	@And("query params will be:")
@@ -83,7 +93,7 @@ public class ApiStepDefinitions {
 		requestData = new RequestData();
 	}
 
-	@Then("^(?:.*) response code is equal to \"(.*)\"$")
+	@Then("response code is equal to \"{}\"")
 	public void responseCodeShouldBe(int code) {
 		ApiTestUtil.checkResponseExistence(response);
 		MatcherAssert.assertThat(
@@ -105,7 +115,7 @@ public class ApiStepDefinitions {
 	@And("JSON response body is equal to \"{}\" by comparison rule \"{}\"")
 	public void verifyResponseJson(String expectedJsonPath, JsonCompareMode jsonCompareMode) {
 		ApiTestUtil.checkResponseExistence(response);
-		String expectedResult = DataManager.getTestFileData(expectedJsonPath);
+		String expectedResult = SessionManager.setSessionVariables(session, DataManager.getTestFileData(expectedJsonPath));
 		String actualResult = response.then().extract().body().asString();
 
 		Allure.attachment("Expected JSON", expectedResult);
@@ -135,5 +145,22 @@ public class ApiStepDefinitions {
 		List<Header> actualHeaders = response.then().extract().headers().asList();
 
 		Assertions.assertThat(actualHeaders).containsAll(processedExpectedHeaders);
+	}
+
+	@And("variable \"{}\" gets value of field \"{}\" from response JSON")
+	public void saveVariableFromJsonResponse(String varName, String jsonPath) {
+		ApiTestUtil.checkResponseExistence(response);
+		JsonPathConfig config = new JsonPathConfig().charset("UTF-8").numberReturnType(JsonPathConfig.NumberReturnType.BIG_DECIMAL);
+		String varValue = Optional.ofNullable(response.then()
+						.extract()
+						.response()
+						.jsonPath(config)
+						.getString(jsonPath))
+				.orElseThrow(() -> new ApiTestException("Nothing found at the specified JSON path: " + jsonPath + ". Set correct JSON path"));
+
+		varValue = varValue.replaceAll("(\\r|\\n|\\r\\n)+", "\\\\\\\\n").replace("\"", "\\\\\\\"");
+
+		Allure.attachment("Session variable", varName + " = " + varValue);
+		session.getSessionMap().put(varName, varValue);
 	}
 }

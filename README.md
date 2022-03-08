@@ -15,6 +15,6 @@ To run tests
 
 `mvn clean verify` - report will be generated tо directory: `target/site/allure-maven/index.html`
 
-To run tests with results
+To run tests with report in browser
 
 `mvn clean verify -P local-report` - report will be generated into temp folder. Web server with results will start.

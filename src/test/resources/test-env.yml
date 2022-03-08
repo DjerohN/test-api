@@ -1,0 +1,14 @@
+env:
+  default:
+    test-data-directory: ${TEST_DATA_DIRECTORY:-testdata/endpoints}
+    application:
+      gorest-co-in:
+        host: ${GOREST_CO_IN_HOST:-https://gorest.co.in}
+        port: ${GOREST_CO_IN_PORT:-}
+
+  local:
+    test-data-directory: testdata/endpoints
+    application:
+      gorest-co-in:
+        host: http://localhost
+        port:
